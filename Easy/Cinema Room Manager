@@ -1,0 +1,131 @@
+package cinema;
+import java.util.Arrays;
+import java.util.Scanner;
+
+public class Cinema {
+    static Scanner scanner = new Scanner(System.in);
+    public static int getUserInput(){
+        System.out.println("\n1. Show the seats\n2. Buy a ticket\n3. Statistics\n0. Exit");
+        return scanner.nextInt();
+    }
+    public static char[][] getCinema(){
+        System.out.println("Enter the number of rows:");
+        int rows = scanner.nextInt();
+        System.out.println("Enter the number of seats in each row:");
+        int seats = scanner.nextInt();
+        char [][] cinema = new char[rows+1][seats+1];
+
+        for (int i = 0; i < rows+1; i++) {
+            for (int j = 0; j < seats+1; j++) {
+                if (i == 0) {
+                    if (j == 0) {
+                        cinema[i][j] = ' ';
+                    } else {
+                        cinema[i][j] = (char)(j+'0');
+                    }
+                } else {
+                    if (j == 0) {
+                        cinema[i][j] = (char)(i+'0');
+                    } else {
+                        cinema[i][j] = 'S';
+                    }
+                }
+            }
+        }
+        return cinema;
+    }
+
+    public static void showCinema(char[][] cinema) {
+        System.out.println("\nCinema:");
+        for (char[] row : cinema) {
+            StringBuilder improvedRow = new StringBuilder();
+            for (char c : row) {
+                improvedRow.append(c).append(" ");
+            }
+            System.out.println(improvedRow);
+        }
+    }
+
+    public static char[][] buyTicket(char[][] cinema) {
+        int ticketPrice;
+        boolean validInput = false;
+        int row = 0;
+        int seat = 0;
+
+        while (!validInput) {
+            System.out.println("\nEnter a row number:");
+            row = scanner.nextInt();
+            System.out.println("Enter a seat number in that row:");
+            seat = scanner.nextInt();
+
+            if (row > cinema.length-1 || row < 1 || seat > cinema[0].length-1 || seat < 1) {
+                System.out.println("Wrong input!");
+            } else if (cinema[row][seat] == 'B') {
+                System.out.println("That ticket has already been purchased!");
+            } else {
+                validInput = true;
+            }
+        }
+        if ((cinema.length-1) * (cinema[0].length-1) <= 60) {
+            ticketPrice = 10;
+        } else {
+            if (row < ((cinema.length) / 2)) {
+                ticketPrice = 10;
+            } else {
+                ticketPrice = 8;
+            }
+        }
+        System.out.printf("\nTicket price: $%s\n", ticketPrice);
+        cinema[row][seat] = 'B';
+        return cinema;
+    }
+
+    public static void showStatistics(char[][] cinema) {
+        int totalSeats = (cinema.length - 1) * (cinema[0].length - 1);
+        int soldSeats = 0;
+        int currentIncome = 0;
+        int maximumIncome = 0;
+
+        for (int i = 1; i < cinema.length; i++) {
+            for (int j = 1; j < cinema[0].length; j++) {
+                if (totalSeats <= 60) {
+                    maximumIncome += 10;
+                    if (cinema[i][j] == 'B') {
+                        currentIncome += 10;
+                        soldSeats++;
+                    }
+                } else if (i < (cinema.length) / 2) {
+                    maximumIncome += 10;
+                    if (cinema[i][j] == 'B') {
+                        currentIncome += 10;
+                        soldSeats++;
+                    }
+                } else {
+                    maximumIncome += 8;
+                    if (cinema[i][j] == 'B') {
+                        currentIncome += 8;
+                        soldSeats++;
+                    }
+                }
+            }
+        }
+        float occupancyPercentage = (float) soldSeats / totalSeats * 100;
+        System.out.printf("%nNumber of purchased tickets: %d%nPercentage: %.2f%%%nCurrent income: $%d%n" +
+                "Total income: $%d%n", soldSeats, occupancyPercentage, currentIncome, maximumIncome);
+    }
+
+    public static void main(String[] args) {
+        boolean running = true;
+        char[][] cinema = getCinema();
+        while (running){
+
+            int userChoice = getUserInput();
+            switch (userChoice) {
+                case 1 -> showCinema(cinema);
+                case 2 -> cinema = buyTicket(cinema);
+                case 3 -> showStatistics(cinema);
+                case 0 -> running = false;
+            }
+        }
+    }
+}
