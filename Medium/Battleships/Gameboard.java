@@ -42,6 +42,5 @@ public class Gameboard {
             }
             System.out.println();
         }
-        System.out.println();
     }
 }
