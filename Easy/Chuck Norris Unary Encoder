@@ -1,0 +1,137 @@
+package chucknorris;
+import java.util.Objects;
+import java.util.Scanner;
+
+public class Main {
+    public static void main(String[] args) {
+        Scanner scanner = new Scanner(System.in);
+        while (true) {
+            System.out.println("Please input operation (encode/decode/exit):");
+            String input = scanner.nextLine();
+            switch (input) {
+                case "encode" -> {
+                    System.out.println(("Input string:"));
+                    String string = scanner.nextLine();
+                    String temp = createBinaryString(string);
+                    String output = encodeAsChuckNorrisUnaryCode(temp);
+                    System.out.println("Encoded string:\n" + output + "\n");
+                }
+                case "decode" -> {
+                    System.out.println("Input encoded string:");
+                    String string = scanner.nextLine();
+                    if (validEncodedString(string)) {
+                        String temp = decodeChuckNorrisUnaryCode(string);
+                        if (temp.length() % 7 == 0) {
+                            String output = decodeBinaryString(temp);
+                            System.out.println("Decoded string:\n" + output + "\n");
+                        } else {
+                            System.out.println("Encoded string not valid.\n");
+                        }
+                    } else {
+                        System.out.println("Encoded string not valid.\n");
+                    }
+                }
+                case "exit" -> {
+                    System.out.println("Bye!");
+                    System.exit(0);
+                }
+                default -> System.out.println("There is no '" + input + "' operation\n");
+            }
+        }
+    }
+
+    public static String createBinaryString(String input) {
+        StringBuilder sb = new StringBuilder();
+        char[] char_array = input.toCharArray();
+
+        for (char c : char_array) {
+            String x = String.format("%7s", Integer.toBinaryString(c)).replace(' ', '0');
+            sb.append(x);
+        }
+        return sb.toString();
+    }
+
+    public static String decodeBinaryString(String input) {
+        StringBuilder sb = new StringBuilder();
+        String[] split = input.split("(?<=\\G.{" + 7 + "})");
+
+        for (String s : split) {
+            int bin = Integer.parseInt(s, 2);
+            char c = (char)bin;
+            sb.append(c);
+        }
+        return sb.toString();
+    }
+
+    public static String encodeAsChuckNorrisUnaryCode(String input) {
+        StringBuilder sb = new StringBuilder();
+
+        char[] array = input.toCharArray();
+        char currentCharacter = array[0];
+        int counter = 0;
+
+        for (char c : array) {
+            if (c == currentCharacter) {
+                counter++;
+            } else {
+                sb.append(getEncoding(currentCharacter, counter));
+                currentCharacter = c;
+                counter = 1;
+            }
+        }
+        sb.append(getEncoding(currentCharacter, counter));
+
+    return sb.toString();
+}
+
+    public static String getEncoding(char c, int counter) {
+        String encoding;
+        if (c == '0') {
+            encoding = "00";
+        } else {
+            encoding = "0";
+        }
+
+        return encoding + " " + "0".repeat(Math.max(0, counter)) + " ";
+    }
+
+    public static String decodeChuckNorrisUnaryCode(String input) {
+        StringBuilder sb = new StringBuilder();
+        String[] split = input.split(" ");
+
+        for (int i = 0; i < split.length; i++) {
+            if (i % 2 != 0) {
+                continue;
+            } else {
+                if (Objects.equals(split[i], "0")) {
+                    sb.append("1".repeat(split[i + 1].length()));
+                } else if (Objects.equals(split[i], "00")) {
+                    sb.append("0".repeat(split[i + 1].length()));
+                }
+            }
+        }
+        return sb.toString();
+    }
+
+    public static boolean validEncodedString(String input) {
+        String[] split = input.split(" ");
+
+        for (int i = 0; i < split.length; i += 2) {
+            if (!Objects.equals(split[i], "0") && !Objects.equals(split[i], "00")) {
+                return false;
+            }
+        }
+
+        for (int i = 0; i < input.length(); i++) {
+            if (input.charAt(i) != '0' && input.charAt(i) != ' ') {
+                return false;
+            }
+        }
+
+        if (split.length %2 != 0) {
+            return false;
+        }
+
+        return true;
+    }
+}
